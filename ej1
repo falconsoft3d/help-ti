@@ -1,0 +1,71 @@
+Define LibPub mn_newton_raph()=
+Prgm
+Text "Método Numérico 1 variable:       Newton-Raphson",0
+Text "Si requiere redondeo introduzca "s", si no es necesario introduzca "n"",0
+ClearAZ
+Local x0,n1,x1,i,m1,red1,red
+red:=n
+RequestStr "¿Redondeo?:",red,0
+If red="n" Then Request "Función a resolver:",f1(x)
+Request "Número de iteraciones:",n1
+Request "Valor inicial, x₀:",x0
+m1:=newMat(n1+1,6)
+Fill _,m1
+m1[1,1]:=n
+m1[1,2]:=xi
+m1[1,3]:=f(xi)
+m1[1,4]:=f'(xi)
+m1[1,5]:=xi+1
+m1[1,6]:=dx
+:(f1(x),x)→der(x)
+Disp "La derivada es:",der(x)
+For i,2,n1+1
+x1:=x0-((f1(x0))/(der(x0)))
+m1[i,1]:=i-2
+m1[i,2]:=x0
+m1[i,3]:=f1(x0)
+m1[i,4]:=der(x0)
+m1[i,5]:=x1
+m1[i,6]:=abs(x1-x0)
+x0:=x1
+EndFor
+Disp "Resultados:"
+Disp approx(m1)
+Text "Fin de iteraciones buscar 
+valor mas cercano a 0.000",0
+ElseIf red="s" Then
+Text "Introduzca un valor entre 0 y 12 para redondeo de decimales",0
+Request "Numero de decimales:",red1,0
+Request "Función a resolver:",f1(x)
+Request "Número de iteraciones:",n1
+Request "Valor inicial, x₀:",x0
+m1:=newMat(n1+1,6)
+Fill _,m1
+m1[1,1]:=n
+m1[1,2]:=xi
+m1[1,3]:=f(xi)
+m1[1,4]:=f'(xi)
+m1[1,5]:=xi+1
+m1[1,6]:=dx (f1(x),x)→der(x)
+Disp "La derivada es:",der(x)
+For i,2,n1+1
+x1:=round(x0-((f1(x0))/(der(x0))),red1)
+m1[i,1]:=i-2
+m1[i,2]:=round(x0,red1)
+m1[i,3]:=round(f1(x0),red1)
+m1[i,4]:=round(der(x0),red1)
+m1[i,5]:=round(x1,red1)
+m1[i,6]:=round(abs(x1-x0))
+x0:=x1
+EndFor
+Disp "Resultados:"
+Disp m1
+Text "Fin de iteraciones buscar valor mas cercano a 0.000",0
+Else
+Text "El programa finalizara porque no introdujo un valor apropiado",0
+Goto fin
+EndIf
+Lbl fin
+ClearAZ
+DelVar der
+EndPrgm
