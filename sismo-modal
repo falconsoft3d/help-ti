@@ -1,0 +1,214 @@
+Define LibPub zmatriz3x3()=
+Prgm
+:Local m1,m2,m3,m,k1,k2,k3
+:
+:Request "Ingrese masa 1 (Tonf/m.s2)",m1
+:Request "Ingrese masa 2 (Tonf/m.s2)",m2
+:Request "Ingrese masa 3 (Tonf/m.s2)",m3
+:
+:[[m1,0,0][0,m2,0][0,0,m3]]→m
+:
+:
+:Disp "La matriz de masa es",m
+:
+:Request "Ingrese k1 Piso 3",k1
+:Request "Ingrese k2 Piso 2 ",k2
+:Request "Ingrese k3 Piso 1",k3
+:
+:[[k1,−k1,0][−k1,k1+k2,−k2][0,−k2,k2+k3]]→k
+:
+:Disp "La matriz K es",k
+:
+:Disp "1- Valores propios para obtener la frecuencia natural del sistema w2"
+:eigVl(m^(−1)*k)→ω2
+:Disp ω2
+:Disp "2- Frecuencia natural del sistema w"
+:ω2^(((1)/(2)))→ω
+:Disp ω
+:Disp "3-Periodos  t"
+:((2*π)/(ω))→t
+:Disp t
+:Disp "4- Los vectores propios  φ"
+:eigVc(m^(−1)*k)→φ
+:Disp φ
+:
+:Disp "5- Vector de influencia r (Como afecta el sismo al grado de libertad)"
+:[[1][1][1]]→r
+:Disp r
+:
+:Disp "6- Matriz de Masa Modal Mi"
+:φ*m*φ→mi
+:Disp mi
+:
+:Disp "7- Vector de participacion modal Li"
+:φ*m*r→li
+:Disp li
+:
+:Disp "8- Masa Modal Efectiva  Mef"
+:(((mat▶list(li))^(2))/(mat▶list(diag(mi))))→mef
+:Disp mef
+:
+:Disp "9- Sumando todas las masas Mef =  "
+:0→smef
+:For i,1,3,1
+:smef+mef[i]→smef
+:EndFor
+:Disp smef
+:
+:Disp "10-  Calculamos el % de Mef para buscar los que sumen mas de 90%"
+:((mef)/(smef))*100→pmef
+:Disp pmef
+:
+:Disp "Empezamos con la norma NCh433"
+:a→tsuelo
+:Disp "11 - Parametros que dependen del tipo de suelo"
+:RequestStr "Que tipo de suelo tienes a-e:",tsuelo
+:
+:Disp "Entramos a la tabla 6.3 de la norma pagina 35"
+:
+:If tsuelo="a" Then
+:  0.9→n_s
+:  0.15→n_to
+:  0.2→n_tp
+:  1→n_n
+:   2→n_p
+: ElseIf tsuelo="b" Then
+:    1→n_s
+:   0.3→n_to
+:   0.35→n_tp
+:   1.33→n_n
+:    1.5→n_p
+: ElseIf tsuelo="c" Then
+:     1.05→n_s
+:    0.4→n_to
+:    0.45→n_tp
+:    1.4→n_n
+:     1.6→n_p
+:  ElseIf tsuelo="d" Then
+:       1.2→n_s
+:      0.75→n_to
+:      0.85→n_tp
+:      1.8→n_n
+:       1.→n_p
+:  ElseIf tsuelo="e" Then
+:         1.3→n_s
+:        1.2→n_to
+:        1.35→n_tp
+:        1.8→n_n
+:         1.→n_p
+: EndIf
+:
+:
+: Disp "s:",n_s," To:",n_to," T'",n_tp," n:",n_n," p:",n_p
+:
+:Disp "12- Valor de Aceleracion efectiva Ao"
+:Request "Entre la zona sismica 1-3",tzona
+:Disp "Entramos a la tabla 6.2"
+:
+:If tzona=1 Then
+:  0.2→n_ao
+:ElseIf tzona=2 Then
+:  0.3→n_ao
+:ElseIf tzona=3 Then
+:  0.4→n_ao
+:EndIf
+:
+:Disp "Ao:",n_ao
+:7→nn_r
+:Request "Dame R de tabla 5.1:",nn_r
+:11→nn_ro
+:Request "Dame Ro de tabla 5.1:",nn_ro
+:
+:
+:Disp "13- Coeficiente de importancia"
+:"i"→nnn_i
+:RequestStr "Entre la categoria edificio I-IV",nnn_i
+:Disp "Entramos a la tabla 6.1"
+:
+:If nnn_i="i" Then
+:  0.6→n_coef_i
+:
+:ElseIf nnn_i="ii" Then
+:  1→n_coef_i
+:
+:ElseIf nnn_i="iii" Then
+:  1.2→n_coef_i
+:
+:ElseIf nnn_i="iv" Then
+:  1.2→n_coef_i
+:  EndIf
+:
+:Disp "El coefieciente de Importancia es",n_coef_i
+:
+:Disp "14 Calculamos R Factor de Reduccion"
+:Disp "Buscamos el modo con mayor masa efectiva"
+:
+:0→mayormasa
+:0→temp_i
+:For i,1,3,1
+:  If mayormasa<mef[i] Then
+:     mef[i]→mayormasa
+:     i→temp_i
+:  EndIf
+:EndFor
+:
+:t[temp_i]→pmyor
+:Disp "Periodo con Mayor masa",pmyor
+:
+:1+((pmyor)/(0.1*n_to+((pmyor)/(nn_ro))))→rreducc
+:
+:Disp "El Factor de Reduccion R es:",rreducc
+:
+:Disp "15 - Calculamos el factor de ampliacion α"
+:
+:((1+4.5*(((t)/(n_to)))^(n_p))/(1+(((t)/(n_to)))^(3)))→α
+:Disp α
+:
+:Disp "16 - Calculamos Sa Espectro de Diseño"
+:((n_s*n_ao*α)/(((rreducc)/(n_coef_i))))→sa
+:Disp "S:",n_s," Ao:",n_ao," R:",rreducc," I:",n_coef_i
+:Disp sa
+:
+:Disp "17- Calculamos los Yi"
+:((mat▶list(li))/(mat▶list(diag(mi))))*((sa)/(ω2))→yi
+:Disp yi
+:
+:Disp "18- Deformacion Màximas por GDL [V]"
+:φ*diag(yi)→vmax
+:Disp "[Vi]: (Desplazamientos Maximos x Modos - X Pisos - Y)",vmax
+:
+:[[vmax[1,1]-vmax[2,1],vmax[1,2]-vmax[2,2],vmax[1,3]-vmax[2,3]][vmax[2,1]-vmax[3,1],vmax[2,2]-vmax[3,2],vmax[2,3]-vmax[3,3]][vmax[3,1],vmax[3,2],vmax[3,3]]]→deltapiso
+:Disp "El desplazamiento entre pisos:",deltapiso
+:
+:Disp "19- Calculamos las Fuerzas Elasticas Fe"
+:m*φ*diag(yi*ω2)→fe
+:Disp fe
+:
+:Disp "20- Calculamos Qbasal"
+:r*fe→qbasal
+:Disp qbasal
+:
+:Disp "21-Calculamos MBasal"
+:
+:Request "Ingrese altura de la Base a Piso 3",h1
+:Request "Ingrese altura de la Base a Piso 2 ",h2
+:Request "Ingrese altura de la Base a  Piso 1",h3
+:
+:[[h1][h2][h3]]→h
+:
+:h*fe→mbasal
+:Disp "El Momento Basal es:",mbasal
+:
+:Disp "Calculamos por SRSS Qbasal y Mbasal"
+:0→qbat
+:0→mbat
+: mat▶list(qbasal)→qbasalist
+: mat▶list(mbasal)→mbasalist
+:For i,1,3,1
+:qbat+qbasalist[i]^(2)→qbat
+:mbat+mbasalist[i]^(2)→mbat
+:EndFor
+:
+:Disp "El Cortante Final Basal es:",qbat^(((1)/(2)))
+:Disp "El Momento Final Basal es",mbat^(((1)/(2)))
+:EndPrgm
