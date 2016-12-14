@@ -1,16 +1,8 @@
 # help-ti
-Codigos de programacion TI
+ Codigos de programacion para la calculadora Texas TI
+ Marlon Falcon Hernandez
 
 # Mostrar en pantalla un resultado
-
-
-Define LibPub prueba(a)=
-Prgm
-:Local a,b,c
-:Request "Ingrese el valor:",b
-:c:=a*b
-:Disp c
-:EndPrgm
-
+ejemplos: Calculos para Asignatura de Sismo Chile
 
 
